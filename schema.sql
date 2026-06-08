@@ -15,8 +15,8 @@ CREATE TABLE tickets (
     creator_id BIGINT NOT NULL,
     claimed_by BIGINT NULL,
     claimed_at BIGINT NULL,
-    status TINYINT NOT NULL DEFAULT 0
-    created_at BIGINT NULL
+    status TINYINT NOT NULL DEFAULT 0,
+    created_at BIGINT NULL,
     closed_by BIGINT NULL,
     closed_at BIGINT NULL,
 
