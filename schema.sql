@@ -55,3 +55,27 @@ CREATE TABLE ticket_type_roles (
     FOREIGN KEY (type_id) REFERENCES ticket_types(type_id)
         ON DELETE CASCADE
 );
+
+CREATE TABLE ticket_panels (
+    panel_id INT AUTO_INCREMENT PRIMARY KEY,
+    guild_id BIGINT NOT NULL,
+    title VARCHAR(256) NOT NULL,
+    description TEXT NOT NULL,
+    thumbnail_url VARCHAR(512) NULL,
+
+    FOREIGN KEY (guild_id) REFERENCES guild_settings(guild_id)
+        ON DELETE CASCADE
+);
+
+
+CREATE TABLE welcome_panels (
+    panel_id INT AUTO_INCREMENT PRIMARY KEY,
+    guild_id BIGINT NOT NULL,
+    title VARCHAR(256) NOT NULL,
+    description TEXT NOT NULL,
+
+    thumbnail_url VARCHAR(512) NULL,
+
+    FOREIGN KEY (guild_id) REFERENCES guild_settings(guild_id)
+        ON DELETE CASCADE
+);
