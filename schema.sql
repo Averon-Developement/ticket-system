@@ -27,20 +27,23 @@ CREATE TABLE tickets (
 CREATE TABLE ticket_blacklist (
     guild_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
+    moderator_id BIGINT NOT NULL,
+    reason VARCHAR(512) NULL,
+    created_at BIGINT NOT NULL,
 
     PRIMARY KEY (guild_id, user_id),
 
     FOREIGN KEY (guild_id) REFERENCES guild_settings(guild_id)
         ON DELETE CASCADE
-); 
+);
 
 CREATE TABLE ticket_types (
     type_id INT AUTO_INCREMENT PRIMARY KEY,
     guild_id BIGINT NOT NULL,
-    name VARCHAR(50) NOT NULL,
-    emoji VARCHAR(32) NULL,
+    name VARCHAR(50) NULL,
+    emoji VARCHAR(50) NULL,
     button_style TINYINT NOT NULL DEFAULT 1,
-    category_id BIGINT NOT NULL,
+    category_id BIGINT NULL,
 
     FOREIGN KEY (guild_id) REFERENCES guild_settings(guild_id)
         ON DELETE CASCADE
@@ -59,8 +62,9 @@ CREATE TABLE ticket_type_roles (
 CREATE TABLE ticket_panels (
     panel_id INT AUTO_INCREMENT PRIMARY KEY,
     guild_id BIGINT NOT NULL,
-    title VARCHAR(256) NOT NULL,
-    description TEXT NOT NULL,
+    accent_color BIGINT NULL,
+    title VARCHAR(256) NULL,
+    description TEXT NULL,
     thumbnail_url VARCHAR(512) NULL,
 
     FOREIGN KEY (guild_id) REFERENCES guild_settings(guild_id)
@@ -71,9 +75,9 @@ CREATE TABLE ticket_panels (
 CREATE TABLE welcome_panels (
     panel_id INT AUTO_INCREMENT PRIMARY KEY,
     guild_id BIGINT NOT NULL,
-    title VARCHAR(256) NOT NULL,
-    description TEXT NOT NULL,
-
+    accent_color BIGINT NULL,
+    title VARCHAR(256) NULL,
+    description TEXT NULL,
     thumbnail_url VARCHAR(512) NULL,
 
     FOREIGN KEY (guild_id) REFERENCES guild_settings(guild_id)
