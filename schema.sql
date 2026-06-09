@@ -74,12 +74,17 @@ CREATE TABLE ticket_panels (
 
 CREATE TABLE welcome_panels (
     panel_id INT AUTO_INCREMENT PRIMARY KEY,
+    type_id INT NOT NULL,
     guild_id BIGINT NOT NULL,
+
     accent_color BIGINT NULL,
     title VARCHAR(256) NULL,
     description TEXT NULL,
     thumbnail_url VARCHAR(512) NULL,
 
     FOREIGN KEY (guild_id) REFERENCES guild_settings(guild_id)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (type_id) REFERENCES ticket_types(type_id)
         ON DELETE CASCADE
 );

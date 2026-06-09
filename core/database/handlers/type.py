@@ -169,4 +169,4 @@ class TicketTypeHandler:
 
         result = cursor.fetchone()
 
-        return result["total"]
+        return int(result["total"])
