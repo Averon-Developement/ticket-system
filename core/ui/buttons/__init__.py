@@ -4,7 +4,8 @@ from .controls import (
     NavigateTicketTypesButton,
     BackToSettingsButton,
     BackToTicketTypesButton,
-    BackToTypeConfigButton
+    BackToTypeConfigButton,
+    SendPanelToChannelButton
 )
 from .types import (
     CreateTicketTypeButton,
@@ -13,14 +14,16 @@ from .types import (
     SetTypeNameButton,
     SetTypeEmojiButton
 )
-from .wlc_panel import (
+from .panel import (
     ConfigureWelcomePanelButton,
     SetAccentColorButton,
     SetTitleButton,
     SetDescriptionButton,
     SetThumbnailButton,
-    PreviewWelcomeMessageButton
+    PreviewWelcomeMessageButton,
+    PreviewPanelButton
 )
+from .ticket import CreateTicketButton, PersistentTicketPanel
 
 __all__ = [
     "SetMaxTicketsButton",
@@ -40,5 +43,9 @@ __all__ = [
     "SetDescriptionButton",
     "SetThumbnailButton",
     "BackToTypeConfigButton",
-    "PreviewWelcomeMessageButton"
+    "PreviewWelcomeMessageButton",
+    "PreviewPanelButton",
+    "SendPanelToChannelButton",
+    "CreateTicketButton",
+    "PersistentTicketPanel"
 ]

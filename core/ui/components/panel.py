@@ -1,54 +1,59 @@
-from discord.ui import LayoutView, Container, Section, Separator, TextDisplay, ActionRow, Thumbnail
-from discord import SeparatorSpacing, Interaction
+from discord.ui import LayoutView, Container, Section, Separator, TextDisplay, Thumbnail, ActionRow
+from discord import SeparatorSpacing, Interaction, ButtonStyle
 
 from core import replace_text_placeholders, replace_thumbnail_placeholder
-from core.database.handlers import WelcomePanelHandler
+from core.database.handlers import TicketPanelHandler, TicketTypeHandler
 from core.ui.buttons import (
     SetAccentColorButton,
     SetTitleButton,
     SetDescriptionButton,
     SetThumbnailButton,
-    BackToTypeConfigButton,
-    PreviewWelcomeMessageButton
+    BackToSettingsButton,
+    PreviewPanelButton,
+    SendPanelToChannelButton,
+    CreateTicketButton
 )
 
 
-class WelcomePanelMenu(LayoutView):
+class PanelMenu(LayoutView):
     def __init__(self, panel_id: int):
         super().__init__(timeout=None)
 
-        panel_config = WelcomePanelHandler(panel_id).get_panel()
+        panel_config = TicketPanelHandler(panel_id).get_panel()
 
         container = Container()
         container.add_item(
             TextDisplay(
                 content=(
-                    "## Configure Welcome Panel\n"
-                    "Customize the welcome message displayed when this ticket type is created.\n"
+                    "## Configure Ticket Panel\n"
+                    "Customize the panel users will see when creating this ticket type.\n"
                     "Fields marked with `*` are required."
                 )
             )
         )
+
         container.add_item(Separator(spacing=SeparatorSpacing.large))
+
         container.add_item(
             Section(
                 TextDisplay(
                     f"**Accent Color:** "
                     f"{f'`#{panel_config.accent_color:06X}`' if panel_config.accent_color else '`Not set`'}\n"
-                    "-# Set the accent color displayed on the side of the welcome panel."
+                    "-# Set the accent color displayed on the ticket panel."
                 ),
-                accessory=SetAccentColorButton(panel_id)
+                accessory=SetAccentColorButton(panel_id, "main")
             )
         )
+
         container.add_item(
             Section(
                 TextDisplay(
-                    f"***Title:** "
+                    f"**Title:** "
                     f"{f'`{panel_config.title}`' if panel_config.title else '`Not set`'}\n"
-                    "-# Set the title displayed at the top of the welcome panel "
+                    "-# Set the title displayed at the top of the ticket panel. "
                     "Available placeholders: `{user.mention}`, `{user.name}`, `{user.displayname}` and `{user.id}`."
                 ),
-                accessory=SetTitleButton(panel_id)
+                accessory=SetTitleButton(panel_id, "main")
             )
         )
 
@@ -61,12 +66,12 @@ class WelcomePanelMenu(LayoutView):
         container.add_item(
             Section(
                 TextDisplay(
-                    f"***Description:**\n"
+                    f"**Description:**\n"
                     f"```{description_preview if description_preview else 'Not set'}```\n"
-                    "-# Set the message displayed in the welcome panel embed. "
+                    "-# Set the description displayed in the ticket panel. "
                     "Markdown and placeholders are supported: `{user.mention}`, `{user.name}`, `{user.displayname}` and `{user.id}`."
                 ),
-                accessory=SetDescriptionButton(panel_id)
+                accessory=SetDescriptionButton(panel_id, "main")
             )
         )
 
@@ -80,10 +85,10 @@ class WelcomePanelMenu(LayoutView):
                 TextDisplay(
                     f"**Thumbnail URL:** "
                     f"{f'`{thumbnail_preview}`' if thumbnail_preview else '`Not set`'}\n"
-                    "-# Set the thumbnail image displayed in the welcome panel embed. "
+                    "-# Set the thumbnail image displayed in the ticket panel. "
                     "Supports image URLs and the `{user.avatar}` placeholder."
                 ),
-                accessory=SetThumbnailButton(panel_id)
+                accessory=SetThumbnailButton(panel_id, "main")
             )
         )
 
@@ -96,20 +101,25 @@ class WelcomePanelMenu(LayoutView):
 
         container.add_item(
             ActionRow(
-                PreviewWelcomeMessageButton(panel_id, disabled=not is_valid),
-                BackToTypeConfigButton(panel_config.type_id, disabled=not is_valid)
+                BackToSettingsButton(disabled=not is_valid),
+                PreviewPanelButton(panel_config.panel_id, disabled=not is_valid),
+                SendPanelToChannelButton(panel_config.panel_id, disabled=not is_valid)
             )
         )
 
         self.add_item(container)
 
 
-
-class WelcomePanelPreview(LayoutView):
-    def __init__(self, panel_id: int, interaction: Interaction):
+class TicketPanel(LayoutView):
+    def __init__(
+        self,
+        panel_id: int,
+        interaction: Interaction,
+        preview: bool
+    ):
         super().__init__(timeout=None)
 
-        panel_config = WelcomePanelHandler(panel_id).get_panel()
+        panel_config = TicketPanelHandler(panel_id).get_panel()
 
         member = interaction.user
 
@@ -135,5 +145,24 @@ class WelcomePanelPreview(LayoutView):
             )
         else:
             container.add_item(content)
+
+        if not preview:
+            container.add_item(Separator(spacing=SeparatorSpacing.large))
+
+            types = TicketTypeHandler.get_guild_types(interaction.guild.id)
+
+            row = ActionRow()
+
+            for type in types:
+                row.add_item(
+                    CreateTicketButton(
+                        type_id=type.type_id,
+                        name=type.name,
+                        style=ButtonStyle(type.button_style),
+                        emoji=type.emoji
+                    )
+                )                
+
+            container.add_item(row)
 
         self.add_item(container)

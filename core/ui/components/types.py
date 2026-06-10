@@ -46,7 +46,7 @@ class TicketTypesMenu(LayoutView):
             for type in types:
                 container.add_item(
                     TextDisplay(
-                        f"**Ticket Type: {type.name} (#{type.type_id})**\n"
+                        f"**{type.name} (#{type.type_id})**\n"
                         f"-# Use the buttons below to edit or delete this ticket type."
                     )
                 )

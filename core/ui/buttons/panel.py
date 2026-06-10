@@ -36,7 +36,11 @@ class ConfigureWelcomePanelButton(Button):
 
 
 class SetAccentColorButton(Button):
-    def __init__(self, panel_id: int) -> None:
+    def __init__(
+        self,
+        panel_id: int,
+        panel_type: str = "welcome"
+    ) -> None:
         super().__init__(
             label="Set Accent Color",
             style=ButtonStyle.primary,
@@ -44,14 +48,19 @@ class SetAccentColorButton(Button):
         )
 
         self.panel_id = panel_id
+        self.panel_type = panel_type
 
     async def callback(self, interaction: Interaction) -> None:
         await interaction.response.send_modal(
-            SetAccentColorModal(interaction, self.panel_id)
+            SetAccentColorModal(interaction, self.panel_id, self.panel_type)
         )
 
 class SetTitleButton(Button):
-    def __init__(self, panel_id: int) -> None:
+    def __init__(
+        self,
+        panel_id: int,
+        panel_type: str = "welcome"
+    ) -> None:
         super().__init__(
             label="Set Title",
             style=ButtonStyle.primary,
@@ -59,14 +68,19 @@ class SetTitleButton(Button):
         )
 
         self.panel_id = panel_id
+        self.panel_type = panel_type
 
     async def callback(self, interaction: Interaction) -> None:
         await interaction.response.send_modal(
-            SetTitleModal(interaction, self.panel_id)
+            SetTitleModal(interaction, self.panel_id, self.panel_type)
         )
 
 class SetDescriptionButton(Button):
-    def __init__(self, panel_id: int) -> None:
+    def __init__(
+        self,
+        panel_id: int,
+        panel_type: str = "welcome"
+    ) -> None:
         super().__init__(
             label="Set Description",
             style=ButtonStyle.primary,
@@ -74,14 +88,19 @@ class SetDescriptionButton(Button):
         )
 
         self.panel_id = panel_id
+        self.panel_type = panel_type
 
     async def callback(self, interaction: Interaction) -> None:
         await interaction.response.send_modal(
-            SetDescriptionModal(interaction, self.panel_id)
+            SetDescriptionModal(interaction, self.panel_id, self.panel_type)
         )
 
 class SetThumbnailButton(Button):
-    def __init__(self, panel_id: int) -> None:
+    def __init__(
+        self,
+        panel_id: int,
+        panel_type: str = "welcome"
+    ) -> None:
         super().__init__(
             label="Set Thumbnail",
             style=ButtonStyle.primary,
@@ -89,10 +108,11 @@ class SetThumbnailButton(Button):
         )
 
         self.panel_id = panel_id
+        self.panel_type = panel_type
 
     async def callback(self, interaction: Interaction) -> None:
         await interaction.response.send_modal(
-            SetThumbnailModal(interaction, self.panel_id)
+            SetThumbnailModal(interaction, self.panel_id, self.panel_type)
         )
 
 
@@ -112,6 +132,30 @@ class PreviewWelcomeMessageButton(Button):
 
         await interaction.response.send_message(
             view=WelcomePanelPreview(self.panel_id, interaction),
+            ephemeral=True
+        )
+
+
+class PreviewPanelButton(Button):
+    def __init__(
+        self,
+        panel_id: int,
+        disabled: bool
+    ) -> None:
+        super().__init__(
+            label="Preview",
+            style=ButtonStyle.blurple,
+            custom_id=f"preview_{panel_id}",
+            disabled=disabled
+        )
+
+        self.panel_id = panel_id
+
+    async def callback(self, interaction: Interaction) -> None:
+        from core.ui.components import TicketPanel
+
+        await interaction.response.send_message(
+            view=TicketPanel(self.panel_id, interaction, preview=True),
             ephemeral=True
         )
 

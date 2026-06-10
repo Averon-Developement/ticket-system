@@ -1,6 +1,8 @@
 from discord import ButtonStyle, Interaction
-from discord.ui import Button
+from discord.ui import Button, View
 
+from core.database.handlers import TicketPanelHandler
+from core.ui.dropdowns import SendTicketPanelToChannelSelect
 
 
 class NavigateTicketTypesButton(Button):
@@ -28,17 +30,27 @@ class NavigateTicketPanelButton(Button):
         )
 
     async def callback(self, interaction: Interaction) -> None:
-        await interaction.response.send_message(
-            content="Worked", ephemeral=True
+        panel_config = TicketPanelHandler.get_panel_by_guild(interaction.guild.id)
+
+        panel_id = (
+            panel_config.panel_id if panel_config
+            else TicketPanelHandler.create_panel(interaction.guild.id)
         )
+
+        from core.ui.components import PanelMenu
+
+        await interaction.response.edit_message(
+            view=PanelMenu(panel_id)
+        )        
 
 
 class BackToSettingsButton(Button):
-    def __init__(self) -> None:
+    def __init__(self, disabled: bool = False) -> None:
         super().__init__(
-            label="Back",
+            label="Save & Go back",
             style=ButtonStyle.gray,
             custom_id="back_button",
+            disabled=disabled
         )
 
     async def callback(self, interaction: Interaction) -> None:
@@ -81,4 +93,34 @@ class BackToTypeConfigButton(Button):
 
         await interaction.response.edit_message(
             view=TicketTypesConfigMenu(interaction.guild, self.type_id)
+        )
+
+class SendTicketPanelView(View):
+    def __init__(self, panel_id: int):
+        super().__init__(timeout=60)
+
+        self.add_item(
+            SendTicketPanelToChannelSelect(panel_id)
+        )
+
+class SendPanelToChannelButton(Button):
+    def __init__(
+        self,
+        panel_id: int,
+        disabled: bool = False
+    ):
+        super().__init__(
+            label="Send panel",
+            style=ButtonStyle.green,
+            custom_id="send_panel_button",
+            disabled=disabled
+        )
+
+        self.panel_id = panel_id
+
+    async def callback(self, interaction: Interaction) -> None:
+        await interaction.response.send_message(
+            content="Select the channel where the ticket panel should be send to.",
+            view=SendTicketPanelView(self.panel_id),
+            ephemeral=True
         )
