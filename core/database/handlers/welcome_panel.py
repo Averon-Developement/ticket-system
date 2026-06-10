@@ -7,6 +7,7 @@ from core.database import ensure_cursor, Cursor
 class WelcomePanel:
     """Welcome panel configuration"""
     panel_id: int
+    type_id: int
     guild_id: int
     accent_color: int | None
     title: str | None
@@ -22,20 +23,27 @@ class WelcomePanelHandler:
     @staticmethod
     @ensure_cursor
     def create_panel(
-        guild_id: int, *, cursor: Cursor = None
+        guild_id: int,
+        type_id: int,
+        *,
+        cursor: Cursor = None
     ) -> int:
         """
         Create a welcome panel.
 
         :param guild_id: The Discord guild ID.
-        :return: The ID of the created panel.
+        :param type_id: The ticket type ID.
+        :return: The created panel ID.
         """
         cursor.execute(
             """
-            INSERT INTO welcome_panels (guild_id)
-            VALUES (%s)
+            INSERT INTO welcome_panels (
+                guild_id,
+                type_id
+            )
+            VALUES (%s, %s)
             """,
-            (guild_id,)
+            (guild_id, type_id)
         )
 
         return cursor.lastrowid
@@ -134,6 +142,32 @@ class WelcomePanelHandler:
         cursor.execute(
             "SELECT * FROM welcome_panels WHERE panel_id=%s",
             (self.panel_id,)
+        )
+
+        result = cursor.fetchone()
+
+        return WelcomePanel(**result) if result else None
+    
+    @staticmethod
+    @ensure_cursor
+    def get_panel_by_type(
+        type_id: int,
+        *,
+        cursor: Cursor = None
+    ) -> WelcomePanel | None:
+        """
+        Get the welcome panel for a ticket type.
+
+        :param type_id: The ticket type ID.
+        :return: The panel configuration.
+        """
+        cursor.execute(
+            """
+            SELECT *
+            FROM welcome_panels
+            WHERE type_id=%s
+            """,
+            (type_id,)
         )
 
         result = cursor.fetchone()

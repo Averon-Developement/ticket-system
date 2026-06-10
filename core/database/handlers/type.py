@@ -40,6 +40,27 @@ class TicketTypeHandler:
 
         return cursor.lastrowid    
 
+    @staticmethod
+    @ensure_cursor
+    def get_all_types(
+        *, cursor: Cursor = None
+    ) -> list[TicketType]:
+        """
+        Get all ticket types.
+
+        :return: A list of all ticket types.
+        """
+        cursor.execute(
+            """
+            SELECT * FROM ticket_types
+            ORDER BY guild_id, type_id
+            """
+        )
+
+        results = cursor.fetchall()
+
+        return [TicketType(**row) for row in results]
+
     @ensure_cursor
     def set_name(
         self, name: str, *, cursor: Cursor = None
@@ -169,4 +190,4 @@ class TicketTypeHandler:
 
         result = cursor.fetchone()
 
-        return result["total"]
+        return int(result["total"])

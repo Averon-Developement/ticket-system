@@ -21,6 +21,33 @@ class TicketPanelHandler:
 
     @staticmethod
     @ensure_cursor
+    def get_panel_by_guild(
+        guild_id: int,
+        *,
+        cursor: Cursor = None
+    ) -> TicketPanel | None:
+        """
+        Get a ticket panel by guild ID.
+
+        :param guild_id: The Discord guild ID.
+        :return: The panel configuration, if found.
+        """
+        cursor.execute(
+            """
+            SELECT *
+            FROM ticket_panels
+            WHERE guild_id=%s
+            LIMIT 1
+            """,
+            (guild_id,)
+        )
+
+        result = cursor.fetchone()
+
+        return TicketPanel(**result) if result else None
+
+    @staticmethod
+    @ensure_cursor
     def create_panel(
         guild_id: int, *, cursor: Cursor = None
     ) -> int:
