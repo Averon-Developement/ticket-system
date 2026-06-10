@@ -9,6 +9,7 @@ class Ticket:
     """Ticket information"""
     ticket_id: int
     guild_id: int
+    type_id: int | None
     channel_id: int
     creator_id: int
     claimed_by: int | None
@@ -27,6 +28,7 @@ class TicketHandler:
     @ensure_cursor
     def create_ticket(
         guild_id: int,
+        type_id: int,
         channel_id: int,
         creator_id: int,
         created_at: int,
@@ -37,6 +39,7 @@ class TicketHandler:
         Create a ticket.
 
         :param guild_id: The Discord guild ID.
+        :param type_id: The ticket type ID.
         :param channel_id: The ticket channel ID.
         :param creator_id: The Discord ID of the ticket creator.
         :param created_at: The ticket creation timestamp.
@@ -44,11 +47,18 @@ class TicketHandler:
         """
         cursor.execute(
             """
-            INSERT INTO tickets (guild_id, channel_id, creator_id, created_at)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO tickets (
+                guild_id,
+                type_id,
+                channel_id,
+                creator_id,
+                created_at
+            )
+            VALUES (%s, %s, %s, %s, %s)
             """,
             (
                 guild_id,
+                type_id,
                 channel_id,
                 creator_id,
                 created_at
@@ -56,7 +66,7 @@ class TicketHandler:
         )
 
         return cursor.lastrowid
-    
+      
     @ensure_cursor
     def set_claim(
         self,
@@ -164,6 +174,44 @@ class TicketHandler:
         cursor.execute(
             "SELECT * FROM tickets WHERE channel_id=%s",
             (channel_id,)
+        )
+
+        result = cursor.fetchone()
+
+        return Ticket(**result) if result else None
+    
+    @staticmethod
+    @ensure_cursor
+    def get_open_by_type_and_creator(
+        guild_id: int,
+        type_id: int,
+        creator_id: int,
+        *,
+        cursor: Cursor = None
+    ) -> Ticket | None:
+        """
+        Get an open ticket of a specific type created by a user.
+
+        :param guild_id: The Discord guild ID.
+        :param type_id: The ticket type ID.
+        :param creator_id: The Discord ID of the ticket creator.
+        :return: The ticket, if found.
+        """
+        cursor.execute(
+            """
+            SELECT *
+            FROM tickets
+            WHERE guild_id=%s
+            AND type_id=%s
+            AND creator_id=%s
+            AND status=0
+            LIMIT 1
+            """,
+            (
+                guild_id,
+                type_id,
+                creator_id
+            )
         )
 
         result = cursor.fetchone()

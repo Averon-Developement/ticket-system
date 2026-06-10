@@ -131,7 +131,7 @@ class PreviewWelcomeMessageButton(Button):
         from core.ui.components import WelcomePanelPreview
 
         await interaction.response.send_message(
-            view=WelcomePanelPreview(self.panel_id, interaction),
+            view=WelcomePanelPreview(self.panel_id, interaction, preview=True),
             ephemeral=True
         )
 

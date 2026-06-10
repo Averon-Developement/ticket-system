@@ -24,6 +24,7 @@ from .panel import (
     PreviewPanelButton
 )
 from .ticket import CreateTicketButton, PersistentTicketPanel
+from .ticket_controls import TicketActionsView, TicketClaimButton, TicketCloseButton
 
 __all__ = [
     "SetMaxTicketsButton",
@@ -47,5 +48,8 @@ __all__ = [
     "PreviewPanelButton",
     "SendPanelToChannelButton",
     "CreateTicketButton",
-    "PersistentTicketPanel"
+    "PersistentTicketPanel",
+    "TicketActionsView",
+    "TicketClaimButton",
+    "TicketCloseButton"
 ]
