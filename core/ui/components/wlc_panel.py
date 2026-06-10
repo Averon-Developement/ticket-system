@@ -9,7 +9,9 @@ from core.ui.buttons import (
     SetDescriptionButton,
     SetThumbnailButton,
     BackToTypeConfigButton,
-    PreviewWelcomeMessageButton
+    PreviewWelcomeMessageButton,
+    TicketCloseButton,
+    TicketClaimButton
 )
 
 
@@ -106,7 +108,7 @@ class WelcomePanelMenu(LayoutView):
 
 
 class WelcomePanelPreview(LayoutView):
-    def __init__(self, panel_id: int, interaction: Interaction):
+    def __init__(self, panel_id: int, interaction: Interaction, preview: bool = False):
         super().__init__(timeout=None)
 
         panel_config = WelcomePanelHandler(panel_id).get_panel()
@@ -135,5 +137,13 @@ class WelcomePanelPreview(LayoutView):
             )
         else:
             container.add_item(content)
+
+        if not preview:
+            container.add_item(Separator(spacing=SeparatorSpacing.large))
+
+            row = ActionRow(TicketCloseButton(), TicketClaimButton())              
+
+            container.add_item(row)
+
 
         self.add_item(container)

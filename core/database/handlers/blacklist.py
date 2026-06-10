@@ -44,7 +44,7 @@ class BlacklistHandler:
 
         cursor.execute(
             """
-            INSERT INTO tickets_blacklist (
+            INSERT INTO ticket_blacklist (
                 guild_id, user_id, moderator_id, reason, created_at
             ) VALUES (%s, %s, %s, %s, %s)
             ON DUPLICATE KEY UPDATE
@@ -74,7 +74,7 @@ class BlacklistHandler:
             raise ValueError("user_id must be set")
 
         cursor.execute(
-            "DELETE FROM tickets_blacklist WHERE guild_id=%s AND user_id=%s",
+            "DELETE FROM ticket_blacklist WHERE guild_id=%s AND user_id=%s",
             (self.guild_id, self.user_id)
         )
 
@@ -90,7 +90,7 @@ class BlacklistHandler:
         :return: The blacklist entry, if found.        
         """
         cursor.execute(
-            "SELECT * FROM tickets_blacklist WHERE guild_id=%s AND user_id=%s",
+            "SELECT * FROM ticket_blacklist WHERE guild_id=%s AND user_id=%s",
             (self.guild_id, self.user_id)
         )
 

@@ -5,7 +5,7 @@ from discord.ext import commands
 
 from core import logger
 
-from core.ui.buttons import PersistentTicketPanel
+from core.ui.buttons import PersistentTicketPanel, TicketActionsView
 
 intents = Intents.default()
 intents.message_content = True
@@ -35,6 +35,7 @@ class Client(commands.AutoShardedBot):
                         logger.error(f"Failed to load {cog}")
 
         self.add_view(PersistentTicketPanel())
+        self.add_view(TicketActionsView())
 
     async def on_ready(self):
         logger.info(f"Logged in as {self.user} (ID: {self.user.id})")
