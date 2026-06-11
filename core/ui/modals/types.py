@@ -69,8 +69,7 @@ class SetTypeEmojiModal(Modal, title="Set Custom Emoji"):
     type_emoji = TextInput(
         label="Set emoji",
         placeholder="e.g. 📩",
-        max_length=50,
-        required=True
+        max_length=50
     )
 
     async def on_submit(self, interaction: Interaction):

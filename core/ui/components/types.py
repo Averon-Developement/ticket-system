@@ -1,12 +1,12 @@
-from discord.ui import LayoutView, Container, Section, Separator, TextDisplay, ActionRow
+from discord.ui import LayoutView, Container, Separator, TextDisplay, ActionRow
 from discord import Guild, SeparatorSpacing
 
 from core.database.handlers import TicketTypeHandler
-from core.ui.buttons import (
-    CreateTicketTypeButton,
-    BackToSettingsButton,
-    TicketTypeEditButton,
-    TicketTypeDeleteButton
+from core.ui.buttons.helpers import (
+    create_ticket_type_button,
+    create_ticket_type_edit_button,
+    create_ticket_type_delete_button,
+    create_back_to_settings_button
 )
 
 
@@ -52,8 +52,8 @@ class TicketTypesMenu(LayoutView):
                 )
                 container.add_item(
                     ActionRow(
-                        TicketTypeEditButton(type.type_id),
-                        TicketTypeDeleteButton(type.type_id)
+                        create_ticket_type_edit_button(type.type_id),
+                        create_ticket_type_delete_button(type.type_id)
                     )
                 )
                 container.add_item(Separator(spacing=SeparatorSpacing.large))
@@ -61,8 +61,8 @@ class TicketTypesMenu(LayoutView):
                     
         container.add_item(
             ActionRow(
-                CreateTicketTypeButton(),
-                BackToSettingsButton()
+                create_back_to_settings_button(),
+                create_ticket_type_button()
             )
         )
 

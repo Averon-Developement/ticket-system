@@ -2,14 +2,14 @@ from discord.ui import LayoutView, Container, Section, Separator, TextDisplay, A
 from discord import Guild, SeparatorSpacing
 
 from core.database.handlers import GuildSettingsHandler
-from core.ui.buttons import (
-    SetMaxTicketsButton,
-    SetTranscriptsButton,
-    NavigateTicketTypesButton,
-    NavigateTicketPanelButton
-)
 from core.ui.dropdowns import TranscriptsChannelSelect
 
+from core.ui.buttons.helpers import (
+    create_max_tickets_button,
+    create_toggle_transcripts_button,
+    create_ticket_types_button,
+    create_ticket_panel_button
+)
 
 class SettingsMenu(LayoutView):
     def __init__(self, guild: Guild):
@@ -37,7 +37,7 @@ class SettingsMenu(LayoutView):
                     f"**Max tickets:** `{settings.max_tickets}`\n"
                     "-# Set the maximum number of tickets a user can create per ticket type.\n"
                 ),
-                accessory=SetMaxTicketsButton()
+                accessory=create_max_tickets_button()
             )
         )
         container.add_item(
@@ -46,7 +46,9 @@ class SettingsMenu(LayoutView):
                     f"**Transcripts:** {"`Enabled`" if settings.transcripts else "`Disabled`"}\n"
                     "-# Enable or disable ticket transcripts for closed tickets.\n"
                 ),
-                accessory=SetTranscriptsButton(settings.transcripts)
+                accessory=create_toggle_transcripts_button(
+                    settings.transcripts
+                )
             )
         )
 
@@ -71,8 +73,8 @@ class SettingsMenu(LayoutView):
         )
         container.add_item(
             ActionRow(
-                NavigateTicketTypesButton(),
-                NavigateTicketPanelButton()
+                create_ticket_types_button(),
+                create_ticket_panel_button()
             )
         )
 

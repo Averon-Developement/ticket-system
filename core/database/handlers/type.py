@@ -191,3 +191,45 @@ class TicketTypeHandler:
         result = cursor.fetchone()
 
         return int(result["total"])
+    
+    @ensure_cursor
+    def delete(
+        self,
+        *,
+        cursor: Cursor = None
+    ) -> None:
+        """
+        Delete a ticket type.
+
+        Related welcome panels and support roles
+        will be deleted automatically through
+        ON DELETE CASCADE.
+        """
+        cursor.execute(
+            """
+            DELETE FROM ticket_types
+            WHERE type_id=%s
+            """,
+            (self.type_id,)
+        )
+
+    @staticmethod
+    @ensure_cursor
+    def has_open_tickets(
+        type_id: int,
+        *,
+        cursor: Cursor = None
+    ) -> bool:
+        cursor.execute(
+            """
+            SELECT EXISTS(
+                SELECT 1
+                FROM tickets
+                WHERE type_id=%s
+                AND status=0
+            ) AS exists_
+            """,
+            (type_id,)
+        )
+
+        return bool(cursor.fetchone()["exists_"])

@@ -46,14 +46,21 @@ class SetAccentColorModal(BasePanelModal, title="Set Accent Color"):
         label="Set accent color",
         placeholder="e.g. #5865F2",
         max_length=7,
-        min_length=6,
-        required=True
+        min_length=0,
+        required=False
     )
 
     async def on_submit(self, interaction: Interaction):
         await interaction.response.defer(ephemeral=True)
 
-        hex_color = self.accent_color.value.strip().lstrip("#")
+        value = self.accent_color.value.strip()
+
+        if not value:
+            self.handler.set_accent_color(None)
+
+            return await self.refresh()
+
+        hex_color = value.lstrip("#")
 
         try:
             if len(hex_color) != 6:
@@ -118,13 +125,17 @@ class SetThumbnailModal(BasePanelModal, title="Set Thumbnail"):
         label="Set thumbnail",
         placeholder="e.g. {user.avatar} or https://example.com/image.png",
         max_length=512,
-        required=True
+        required=False
     )
 
     async def on_submit(self, interaction: Interaction):
         await interaction.response.defer(ephemeral=True)
 
         value = self.thumbnail_url.value.strip()
+
+        if not value:
+            self.handler.set_thumbnail_url(None)
+            return await self.refresh()
 
         if value != "{user.avatar}":
             parsed = urlparse(value)
