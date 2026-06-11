@@ -8,10 +8,11 @@ class TicketType:
     """Ticket type configuration"""
     type_id: int
     guild_id: int
-    name: str
+    name: str | None
+    button_name: str | None
     emoji: str | None
     button_style: int
-    category_id: int
+    category_id: int | None
 
 
 class TicketTypeHandler:
@@ -191,3 +192,66 @@ class TicketTypeHandler:
         result = cursor.fetchone()
 
         return int(result["total"])
+    
+    @ensure_cursor
+    def delete(
+        self,
+        *,
+        cursor: Cursor = None
+    ) -> None:
+        """
+        Delete a ticket type.
+
+        Related welcome panels and support roles
+        will be deleted automatically through
+        ON DELETE CASCADE.
+        """
+        cursor.execute(
+            """
+            DELETE FROM ticket_types
+            WHERE type_id=%s
+            """,
+            (self.type_id,)
+        )
+
+    @staticmethod
+    @ensure_cursor
+    def has_open_tickets(
+        type_id: int,
+        *,
+        cursor: Cursor = None
+    ) -> bool:
+        cursor.execute(
+            """
+            SELECT EXISTS(
+                SELECT 1
+                FROM tickets
+                WHERE type_id=%s
+                AND status=0
+            ) AS exists_
+            """,
+            (type_id,)
+        )
+
+        return bool(cursor.fetchone()["exists_"])
+    
+    @ensure_cursor
+    def set_button_name(
+        self,
+        button_name: str | None,
+        *,
+        cursor: Cursor = None
+    ) -> None:
+        """
+        Set the button name.
+
+        :param button_name: The button label.
+        """
+        cursor.execute(
+            """
+            UPDATE ticket_types
+            SET button_name=%s
+            WHERE type_id=%s
+            """,
+            (button_name, self.type_id)
+        )

@@ -1,6 +1,7 @@
 from discord.ui import ChannelSelect
 from discord import Interaction, ChannelType, TextChannel
 
+from core import Icons
 from core.database.handlers import GuildSettingsHandler
 
 
@@ -22,7 +23,7 @@ class SendTicketPanelToChannelSelect(ChannelSelect):
 
         if channel is None:
             return await interaction.response.edit_message(
-                content="Unable to find that channel.",
+                content=f"{Icons.error} Unable to find that channel.",
                 view=None
             )
 
@@ -30,7 +31,7 @@ class SendTicketPanelToChannelSelect(ChannelSelect):
 
         if not permissions.send_messages:
             return await interaction.response.edit_message(
-                content=f"I can't send messages in {channel.mention}.",
+                content=f"{Icons.error} I can't send messages in {channel.mention}.",
                 view=None
             )
 
@@ -45,6 +46,6 @@ class SendTicketPanelToChannelSelect(ChannelSelect):
         )
 
         await interaction.response.edit_message(
-            content=f"Successfully sent the ticket panel to {channel.mention}.",
+            content=f"{Icons.success} Successfully sent the ticket panel to {channel.mention}.",
             view=None
         )

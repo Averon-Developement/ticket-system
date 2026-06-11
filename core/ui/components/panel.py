@@ -3,16 +3,16 @@ from discord import SeparatorSpacing, Interaction, ButtonStyle
 
 from core import replace_text_placeholders, replace_thumbnail_placeholder
 from core.database.handlers import TicketPanelHandler, TicketTypeHandler
-from core.ui.buttons import (
-    SetAccentColorButton,
-    SetTitleButton,
-    SetDescriptionButton,
-    SetThumbnailButton,
-    BackToSettingsButton,
-    PreviewPanelButton,
-    SendPanelToChannelButton,
-    CreateTicketButton
+from core.ui.buttons.helpers import (
+    create_set_accent_color_button,
+    create_set_description_button,
+    create_set_thumbnail_button,
+    create_set_title_button,
+    create_back_to_settings_button,
+    create_send_panel_button,
+    create_preview_panel_button
 )
+from core.ui.buttons import CreateTicketButton
 
 
 class PanelMenu(LayoutView):
@@ -41,7 +41,7 @@ class PanelMenu(LayoutView):
                     f"{f'`#{panel_config.accent_color:06X}`' if panel_config.accent_color else '`Not set`'}\n"
                     "-# Set the accent color displayed on the ticket panel."
                 ),
-                accessory=SetAccentColorButton(panel_id, "main")
+                accessory=create_set_accent_color_button(panel_id, "main")
             )
         )
 
@@ -53,7 +53,7 @@ class PanelMenu(LayoutView):
                     "-# Set the title displayed at the top of the ticket panel. "
                     "Available placeholders: `{user.mention}`, `{user.name}`, `{user.displayname}` and `{user.id}`."
                 ),
-                accessory=SetTitleButton(panel_id, "main")
+                accessory=create_set_title_button(panel_id, "main")
             )
         )
 
@@ -71,7 +71,7 @@ class PanelMenu(LayoutView):
                     "-# Set the description displayed in the ticket panel. "
                     "Markdown and placeholders are supported: `{user.mention}`, `{user.name}`, `{user.displayname}` and `{user.id}`."
                 ),
-                accessory=SetDescriptionButton(panel_id, "main")
+                accessory=create_set_description_button(panel_id, "main")
             )
         )
 
@@ -88,7 +88,7 @@ class PanelMenu(LayoutView):
                     "-# Set the thumbnail image displayed in the ticket panel. "
                     "Supports image URLs and the `{user.avatar}` placeholder."
                 ),
-                accessory=SetThumbnailButton(panel_id, "main")
+                accessory=create_set_thumbnail_button(panel_id, "main")
             )
         )
 
@@ -101,9 +101,9 @@ class PanelMenu(LayoutView):
 
         container.add_item(
             ActionRow(
-                BackToSettingsButton(disabled=not is_valid),
-                PreviewPanelButton(panel_config.panel_id, disabled=not is_valid),
-                SendPanelToChannelButton(panel_config.panel_id, disabled=not is_valid)
+                create_back_to_settings_button(disabled=not is_valid),
+                create_preview_panel_button(panel_config.panel_id, disabled=not is_valid),
+                create_send_panel_button(panel_config.panel_id, disabled=not is_valid)
             )
         )
 
@@ -157,7 +157,7 @@ class TicketPanel(LayoutView):
                 row.add_item(
                     CreateTicketButton(
                         type_id=type.type_id,
-                        name=type.name,
+                        button_name=type.button_name,
                         style=ButtonStyle(type.button_style),
                         emoji=type.emoji
                     )

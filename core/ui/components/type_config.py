@@ -2,13 +2,14 @@ from discord.ui import LayoutView, Container, Section, Separator, TextDisplay, A
 from discord import Guild, SeparatorSpacing
 
 from core.database.handlers import TicketTypeHandler, TicketTypeRoleHandler, WelcomePanelHandler
-from core.ui.buttons import (
-    SetTypeNameButton,
-    SetTypeEmojiButton,
-    ConfigureWelcomePanelButton,
-    BackToTicketTypesButton
-)
 from core.ui.dropdowns import ButtonStyleSelect, TicketCategorySelect, TicketSupportRolesSelect
+from core.ui.buttons.helpers import (
+    create_set_type_name_button,
+    create_set_type_emoji_button,
+    create_back_to_ticket_types_button,
+    create_edit_welcome_panel_button,
+    create_set_type_button_name_button
+)
 
 
 STYLE_NAMES = {
@@ -60,10 +61,20 @@ class TicketTypesConfigMenu(LayoutView):
         container.add_item(
             Section(
                 TextDisplay(
-                    f"***Name:** `{type_config.name if type_config.name else '`Not set (Required)`'}`\n"
+                    f"***Name:** `{type_config.name if type_config.name else '`Not set`'}`\n"
                     "-# Set the name of this ticket type. This will be displayed on the ticket button.\n"
                 ),
-                accessory=SetTypeNameButton(type_id)
+                accessory=create_set_type_name_button(type_id)
+            )
+        )
+        container.add_item(
+            Section(
+                TextDisplay(
+                    f"***Button Name:** "
+                    f"`{type_config.button_name if type_config.button_name else 'Not set'}`\n"
+                    "-# Text displayed on the ticket creation button.\n"
+                ),
+                accessory=create_set_type_button_name_button(type_id)
             )
         )
         container.add_item(
@@ -72,7 +83,7 @@ class TicketTypesConfigMenu(LayoutView):
                     f"**Custom Emoji:** {type_config.emoji if type_config.emoji else '`Not set`'}\n"
                     "-# Set an emoji to display alongside the ticket button. Must be a valid Discord emoji.\n"
                 ),
-                accessory=SetTypeEmojiButton(type_id)
+                accessory=create_set_type_emoji_button(type_id)
             )
         )
         container.add_item(
@@ -86,8 +97,8 @@ class TicketTypesConfigMenu(LayoutView):
         )
         container.add_item(
             TextDisplay(
-                f"***Category:** "
-                f"`{category.name if category else '`Not set (Required)`'}`\n"
+                f"**Category:** "
+                f"`{category.name if category else '`Not set`'}`\n"
                 "-# Select the category where tickets of this type will be created."
             )
         )
@@ -114,6 +125,7 @@ class TicketTypesConfigMenu(LayoutView):
         is_valid = all([
             type_config.name,
             type_config.category_id,
+            type_config.button_name,
             panel_config,
             panel_config.title if panel_config else None,
             panel_config.description if panel_config else None
@@ -121,8 +133,8 @@ class TicketTypesConfigMenu(LayoutView):
 
         container.add_item(
             ActionRow(
-                ConfigureWelcomePanelButton(type_id),
-                BackToTicketTypesButton(disabled=not is_valid)
+                create_back_to_ticket_types_button(disabled=not is_valid),
+                create_edit_welcome_panel_button(type_id)
             )
         )
 

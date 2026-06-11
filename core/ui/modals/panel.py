@@ -3,6 +3,7 @@ from urllib.parse import urlparse
 from discord import Interaction, TextStyle
 from discord.ui import Modal, TextInput
 
+from core import Icons
 from core.database.handlers import WelcomePanelHandler, TicketPanelHandler
 
 
@@ -46,14 +47,21 @@ class SetAccentColorModal(BasePanelModal, title="Set Accent Color"):
         label="Set accent color",
         placeholder="e.g. #5865F2",
         max_length=7,
-        min_length=6,
-        required=True
+        min_length=0,
+        required=False
     )
 
     async def on_submit(self, interaction: Interaction):
         await interaction.response.defer(ephemeral=True)
 
-        hex_color = self.accent_color.value.strip().lstrip("#")
+        value = self.accent_color.value.strip()
+
+        if not value:
+            self.handler.set_accent_color(None)
+
+            return await self.refresh()
+
+        hex_color = value.lstrip("#")
 
         try:
             if len(hex_color) != 6:
@@ -63,7 +71,7 @@ class SetAccentColorModal(BasePanelModal, title="Set Accent Color"):
 
         except ValueError:
             return await interaction.followup.send(
-                content="Please provide a valid hex color (e.g. #5865F2).",
+                content=f"{Icons.error} Please provide a valid hex color (e.g. #5865F2).",
                 ephemeral=True
             )
 
@@ -118,7 +126,7 @@ class SetThumbnailModal(BasePanelModal, title="Set Thumbnail"):
         label="Set thumbnail",
         placeholder="e.g. {user.avatar} or https://example.com/image.png",
         max_length=512,
-        required=True
+        required=False
     )
 
     async def on_submit(self, interaction: Interaction):
@@ -126,13 +134,17 @@ class SetThumbnailModal(BasePanelModal, title="Set Thumbnail"):
 
         value = self.thumbnail_url.value.strip()
 
+        if not value:
+            self.handler.set_thumbnail_url(None)
+            return await self.refresh()
+
         if value != "{user.avatar}":
             parsed = urlparse(value)
 
             if parsed.scheme not in {"http", "https"} or not parsed.netloc:
                 return await interaction.followup.send(
                     content=(
-                        "Please provide a valid image URL or "
+                        f"{Icons.error} Please provide a valid image URL or "
                         "`{user.avatar}`."
                     ),
                     ephemeral=True
