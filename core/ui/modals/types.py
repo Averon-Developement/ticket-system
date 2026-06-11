@@ -117,3 +117,38 @@ class SetTypeEmojiModal(Modal, title="Set Custom Emoji"):
                 self.type_id
             )
         )
+
+class SetTypeButtonNameModal(Modal, title="Set button name"):
+    def __init__(
+        self,
+        org_interaction: Interaction,
+        type_id: int
+    ):
+        super().__init__()
+
+        self.org_interaction = org_interaction
+        self.type_id = type_id
+
+    button_name = TextInput(
+        label="Set button name",
+        placeholder="e.g. Create Ticket",
+        max_length=80,
+        min_length=1,
+        required=True
+    )
+
+    async def on_submit(self, interaction: Interaction):
+        await interaction.response.defer(ephemeral=True)
+
+        TicketTypeHandler(self.type_id).set_button_name(
+            self.button_name.value.strip()
+        )
+
+        from core.ui.components import TicketTypesConfigMenu
+
+        await self.org_interaction.edit_original_response(
+            view=TicketTypesConfigMenu(
+                interaction.guild,
+                self.type_id
+            )
+        )

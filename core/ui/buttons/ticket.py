@@ -9,7 +9,8 @@ from core.database.handlers import (
     TicketHandler,
     TicketTypeRoleHandler,
     BlacklistHandler,
-    WelcomePanelHandler
+    WelcomePanelHandler,
+    GuildSettingsHandler
 )
 
 class PersistentTicketPanel(View):
@@ -20,7 +21,7 @@ class PersistentTicketPanel(View):
             self.add_item(
                 CreateTicketButton(
                     type_id=type.type_id,
-                    name=type.name,
+                    button_name=type.button_name,
                     style=ButtonStyle(type.button_style),
                     emoji=type.emoji
                 )
@@ -31,12 +32,12 @@ class CreateTicketButton(Button):
     def __init__(
         self,
         type_id: int,
-        name: str,
+        button_name: str,
         style: ButtonStyle,
         emoji: str | None = None
     ):
         super().__init__(
-            label=name,
+            label=button_name,
             style=style,
             emoji=emoji,
             custom_id=f"ticket_type:{type_id}"
@@ -57,17 +58,39 @@ class CreateTicketButton(Button):
                 ephemeral=True
             )
 
-        ticket_open = TicketHandler.get_open_by_type_and_creator(
-            interaction.guild.id, self.type_id, interaction.user.id
+        guild_settings = GuildSettingsHandler(
+            interaction.guild.id
+        ).get_settings()
+
+        open_tickets = TicketHandler.get_open_by_creator(
+            interaction.guild.id,
+            interaction.user.id
         )
 
-        if ticket_open:
-            channel = interaction.guild.get_channel(ticket_open.channel_id)
+        if len(open_tickets) >= guild_settings.max_tickets:
+            ticket_mentions = []
+
+            for ticket in open_tickets:
+                channel = interaction.guild.get_channel(
+                    ticket.channel_id
+                )
+
+                if channel:
+                    ticket_mentions.append(channel.mention)
 
             return await interaction.followup.send(
-                content=f"{Icons.error} You already have a ticket open at {channel.mention} for this type.",
+                content=(
+                    f"{Icons.error} You already have `{len(open_tickets)}`/`{guild_settings.max_tickets}` "
+                    f"tickets open.\n"
+                    f"-# Open Tickets: {', '.join(ticket_mentions)}"
+                ),
                 ephemeral=True
             )
+        
+        msg = await interaction.followup.send(
+            content="*Creating ticket...*",
+            ephemeral=True
+        )
 
         type_config = TicketTypeHandler(self.type_id).get_type()
         support_roles = TicketTypeRoleHandler(self.type_id).get_roles()
@@ -107,13 +130,14 @@ class CreateTicketButton(Button):
         panel_config = WelcomePanelHandler.get_panel_by_type(type_config.type_id)
 
         from core.ui.components import WelcomePanelPreview
-        await channel.send(
+        welcome_message = await channel.send(
             view=WelcomePanelPreview(panel_config.panel_id, interaction, preview=False)
         )
 
-        await interaction.followup.send(
-            content=f"{Icons.success} Ticket created at {channel.mention}.",
-            ephemeral=True
+        await welcome_message.pin(reason="Ticket welcome message.")
+
+        await msg.edit(
+            content=f"{Icons.success} Ticket created: {channel.mention}."
         )
 
 
@@ -134,8 +158,32 @@ class TicketCloseButton(Button):
         )
 
     async def callback(self, interaction):
-        pass
+        await interaction.response.defer(ephemeral=True)
 
+        if not interaction.user.guild_permissions.manage_messages:
+            return await interaction.followup.send(
+                content="You do not have the permissions to close this ticket.",
+                ephemeral=True
+            )
+
+        await interaction.followup.send(
+            content="Are you sure you want to close this ticket?",
+            view=ConfirmTicketClose(),
+            ephemeral=True,
+        )
+
+
+class ConfirmTicketClose(View):
+    def __init__(self):
+        super().__init__(timeout=30)
+
+        from core.ui.buttons.helpers import (
+            create_close_yes_button, create_close_no_button
+        )
+
+        self.add_item(create_close_yes_button())
+        self.add_item(create_close_no_button())
+        
 
 class TicketClaimButton(Button):
     def __init__(self):

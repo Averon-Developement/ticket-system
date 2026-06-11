@@ -1,7 +1,7 @@
 from discord import ButtonStyle
 
 from core.ui.buttons import AppButton
-from core.ui.modals import SetTypeNameModal, SetTypeEmojiModal
+from core.ui.modals import SetTypeNameModal, SetTypeEmojiModal, SetTypeButtonNameModal
 from ..helpers import create_modal_button
 
 from ..callbacks import (
@@ -56,11 +56,26 @@ def create_set_type_name_button(
             )
     )
 
+def create_set_type_button_name_button(
+    type_id: int
+) -> AppButton:
+    return create_modal_button(
+        label="Set Button Name",
+        style=ButtonStyle.blurple,
+        custom_id=f"type_{type_id}_button_name",
+        data={"type_id": type_id},
+        modal_factory=lambda interaction, button:
+            SetTypeButtonNameModal(
+                interaction,
+                button.data["type_id"]
+            )
+    )
+
 def create_set_type_emoji_button(
     type_id: int
 ) -> AppButton:
     return create_modal_button(
-        label="Set Emoji",
+        label="Set Button Emoji",
         style=ButtonStyle.blurple,
         custom_id=f"type_{type_id}_emoji",
         data={"type_id": type_id},

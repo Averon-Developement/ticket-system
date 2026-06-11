@@ -1,5 +1,5 @@
 from .max_tickets import SetMaxTicketsModal
-from .types import SetTypeNameModal, SetTypeEmojiModal
+from .types import SetTypeNameModal, SetTypeEmojiModal, SetTypeButtonNameModal
 from .panel import SetAccentColorModal, SetTitleModal, SetDescriptionModal, SetThumbnailModal
 
 __all__ = [
@@ -9,5 +9,6 @@ __all__ = [
     "SetAccentColorModal",
     "SetTitleModal",
     "SetDescriptionModal",
-    "SetThumbnailModal"
+    "SetThumbnailModal",
+    "SetTypeButtonNameModal"
 ]

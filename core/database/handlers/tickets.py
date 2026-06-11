@@ -113,7 +113,7 @@ class TicketHandler:
         )
 
     @ensure_cursor
-    def close(
+    def close_ticket(
         self,
         closed_by: int,
         *,
@@ -217,3 +217,31 @@ class TicketHandler:
         result = cursor.fetchone()
 
         return Ticket(**result) if result else None
+    
+    @staticmethod
+    @ensure_cursor
+    def get_open_by_creator(
+        guild_id: int,
+        creator_id: int,
+        *,
+        cursor: Cursor = None
+    ) -> list[Ticket]:
+        cursor.execute(
+            """
+            SELECT *
+            FROM tickets
+            WHERE guild_id=%s
+            AND creator_id=%s
+            AND status=0
+            ORDER BY created_at
+            """,
+            (
+                guild_id,
+                creator_id
+            )
+        )
+
+        return [
+            Ticket(**row)
+            for row in cursor.fetchall()
+        ]

@@ -157,7 +157,7 @@ class TicketPanel(LayoutView):
                 row.add_item(
                     CreateTicketButton(
                         type_id=type.type_id,
-                        name=type.name,
+                        button_name=type.button_name,
                         style=ButtonStyle(type.button_style),
                         emoji=type.emoji
                     )

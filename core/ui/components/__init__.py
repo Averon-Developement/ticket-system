@@ -3,6 +3,7 @@ from .types import TicketTypesMenu
 from .type_config import TicketTypesConfigMenu
 from .wlc_panel import WelcomePanelMenu, WelcomePanelPreview
 from .panel import PanelMenu, TicketPanel
+from .custom import CustomMessageComponent
 
 __all__ = [
     "SettingsMenu",
@@ -11,5 +12,6 @@ __all__ = [
     "WelcomePanelMenu",
     "WelcomePanelPreview",
     "PanelMenu",
-    "TicketPanel"
+    "TicketPanel",
+    "CustomMessageComponent"
 ]
