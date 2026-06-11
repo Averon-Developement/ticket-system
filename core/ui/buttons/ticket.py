@@ -131,7 +131,11 @@ class CreateTicketButton(Button):
 
         from core.ui.components import WelcomePanelPreview
         welcome_message = await channel.send(
-            view=WelcomePanelPreview(panel_config.panel_id, interaction, preview=False)
+            view=WelcomePanelPreview(
+                panel_config.panel_id,
+                interaction,
+                preview=False
+            )
         )
 
         await welcome_message.pin(reason="Ticket welcome message.")
@@ -157,12 +161,12 @@ class TicketCloseButton(Button):
             emoji="🔒"
         )
 
-    async def callback(self, interaction):
+    async def callback(self, interaction: Interaction):
         await interaction.response.defer(ephemeral=True)
 
         if not interaction.user.guild_permissions.manage_messages:
             return await interaction.followup.send(
-                content="You do not have the permissions to close this ticket.",
+                content=f"{Icons.error} You do not have the permissions to close this ticket.",
                 ephemeral=True
             )
 
@@ -194,5 +198,63 @@ class TicketClaimButton(Button):
             emoji="📌"
         )
 
-    async def callback(self, interaction):
-        pass
+    async def callback(self, interaction: Interaction):
+        await interaction.response.defer(ephemeral=True)
+
+        if not interaction.user.guild_permissions.manage_messages:
+            return await interaction.followup.send(
+                content=f"{Icons.error} You do not have the permissions to claim this ticket.",
+                ephemeral=True
+            )
+
+        ticket_info = TicketHandler.get_by_channel(interaction.channel.id)
+
+        if not ticket_info.claimed_by:
+            TicketHandler(ticket_info.ticket_id).set_claim(
+                interaction.user.id, int(time.time())
+            )
+
+            new_ticket_info = TicketHandler(ticket_info.ticket_id).get_ticket()
+
+            from core.ui.components import CustomMessageComponent
+            await interaction.channel.send(
+                view=CustomMessageComponent(
+                    content=f"This ticket has been claimed by {interaction.user.mention} (<t:{new_ticket_info.claimed_at}:R>)",
+                    accent_color=0x89FF91
+                )
+            )
+
+            await interaction.followup.send(
+                content=f"{Icons.success} You have claimed this ticket.",
+                ephemeral=True
+            )
+            return
+
+        if ticket_info.claimed_by == interaction.user.id:
+            TicketHandler(ticket_info.ticket_id).set_claim(
+                None, None
+            )
+
+            from core.ui.components import CustomMessageComponent
+            await interaction.channel.send(
+                view=CustomMessageComponent(
+                    content=f"This ticket has been unclaimeded by {interaction.user.mention}."
+                )
+            )
+
+            await interaction.followup.send(
+                content=f"{Icons.success} You have unclaimed this ticket.",
+                ephemeral=True
+            )
+            return
+
+        elif ticket_info.claimed_by != interaction.user.id:
+            user = interaction.guild.get_member(ticket_info.claimed_by)
+            if user is None:
+                user = await interaction.guild.fetch_member(ticket_info.claimed_by)
+
+            await interaction.followup.send(
+                content=f"{Icons.error} this ticket has already been claimed by **{user.name}**.",
+                ephemeral=True
+            )
+            return

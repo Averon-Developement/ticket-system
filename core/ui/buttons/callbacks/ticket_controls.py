@@ -39,10 +39,8 @@ async def close_ticket_confirmed(
 
     await interaction.channel.send(
         view=CustomMessageComponent(
-            title="Ticket Closed",
             content=(
-                "This ticket has been closed and will be closed in **3 seconds**.\n"
-                f"-# Closed by: `{interaction.user.name}`"
+                f"This ticket has been closed by **{interaction.user.name}** and will be closed in **3 seconds**."
             ),
             accent_color=0xFE3641
         )

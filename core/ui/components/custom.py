@@ -4,9 +4,9 @@ from discord.ui import LayoutView, Container, TextDisplay
 class CustomMessageComponent(LayoutView):
     def __init__(
         self,
-        title: str,
-        content: str,
-        accent_color: str = None
+        *,
+        content: str | None = None,
+        accent_color: str | None = None
     ):
         super().__init__(timeout=None)
 
@@ -15,7 +15,6 @@ class CustomMessageComponent(LayoutView):
         )
         container.add_item(
             TextDisplay(content=(
-                f"## {title}\n"
                 f"{content}"
             ))
         )
