@@ -2,6 +2,7 @@ from discord.ext import commands
 from discord import app_commands, Interaction
 
 from core.ui.components import SettingsMenu
+from core import Icons
 
 
 class Ticket(commands.Cog):
@@ -24,8 +25,14 @@ class Ticket(commands.Cog):
 
         if not interaction.user.guild_permissions.administrator:
             return await interaction.edit_original_response(
-                content=f"You do not have the permissions to execute this command."
+                content=f"{Icons.error} You do not have the permissions to execute this command."
             )
+
+
+        # if no config is found add some basic logic.
+
+
+
 
         await interaction.edit_original_response(
             view=SettingsMenu(interaction.guild)

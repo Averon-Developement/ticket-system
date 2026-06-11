@@ -3,6 +3,7 @@ import time
 from discord.ui import Button, View
 from discord import ButtonStyle, Interaction, PermissionOverwrite
 
+from core import Icons
 from core.database.handlers import (
     TicketTypeHandler,
     TicketHandler,
@@ -52,7 +53,7 @@ class CreateTicketButton(Button):
 
         if is_blacklisted:
             return await interaction.followup.send(
-                content="You are not allowed to create a ticket.",
+                content=f"{Icons.error} You are not allowed to create a ticket.",
                 ephemeral=True
             )
 
@@ -64,7 +65,7 @@ class CreateTicketButton(Button):
             channel = interaction.guild.get_channel(ticket_open.channel_id)
 
             return await interaction.followup.send(
-                content=f"You already have a ticket open at {channel.mention} for this type.",
+                content=f"{Icons.error} You already have a ticket open at {channel.mention} for this type.",
                 ephemeral=True
             )
 
@@ -111,7 +112,7 @@ class CreateTicketButton(Button):
         )
 
         await interaction.followup.send(
-            content=f"Ticket created at {channel.mention}.",
+            content=f"{Icons.success} Ticket created at {channel.mention}.",
             ephemeral=True
         )
 

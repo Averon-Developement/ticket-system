@@ -1,5 +1,6 @@
 from discord import Interaction
 
+from core import Icons
 from core.database.handlers import TicketTypeHandler, WelcomePanelHandler
 from core.ui.buttons import AppButton
 
@@ -14,7 +15,7 @@ async def create_ticket_type(
 
     if total_types == 3:
         return await interaction.response.send_message(
-            content="Ticket type limit reached. A maximum of 3 ticket types can be created.",
+            content=f"{Icons.error} Ticket type limit reached. A maximum of 3 ticket types can be created.",
             ephemeral=True
         )
 
@@ -68,7 +69,7 @@ async def delete_ticket_type(
     if total_types <= 1:
         return await interaction.response.send_message(
             content=(
-                "You must have at least one ticket type."
+                f"{Icons.error} You must have at least one ticket type."
             ),
             ephemeral=True
         )
@@ -78,7 +79,7 @@ async def delete_ticket_type(
     ):
         return await interaction.response.send_message(
             content=(
-                "This ticket type cannot be deleted "
+                f"{Icons.error} This ticket type cannot be deleted "
                 "because tickets exist for it."
             ),
             ephemeral=True

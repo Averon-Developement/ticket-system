@@ -2,7 +2,7 @@ import emoji
 from discord import Interaction, PartialEmoji
 from discord.ui import Modal, TextInput
 
-from core import logger
+from core import logger, Icons
 from core.database.handlers import TicketTypeHandler
 
 
@@ -32,7 +32,7 @@ class SetTypeNameModal(Modal, title="Set name"):
 
         if not type_config:
             return await interaction.followup.send(
-                content="No type config found. If this issue persists, please contact our support",
+                content=f"{Icons.error} No type config found. If this issue persists, please contact our support",
                 ephemeral=True
             )
         
@@ -45,7 +45,7 @@ class SetTypeNameModal(Modal, title="Set name"):
             )
 
             return await interaction.followup.send(
-                content="Failed to set the type name. If this issue persists, please contact our support",
+                content=f"{Icons.error} Failed to set the type name. If this issue persists, please contact our support",
                 ephemeral=True
             )
 
@@ -79,7 +79,7 @@ class SetTypeEmojiModal(Modal, title="Set Custom Emoji"):
 
         if not type_config:
             return await interaction.followup.send(
-                content="No type config found. If this issue persists, please contact our support.",
+                content=f"{Icons.error} No type config found. If this issue persists, please contact our support.",
                 ephemeral=True
             )
 
@@ -91,7 +91,7 @@ class SetTypeEmojiModal(Modal, title="Set Custom Emoji"):
 
         if not is_custom_emoji and not is_unicode_emoji:
             return await interaction.followup.send(
-                content="Please provide a valid Discord emoji.",
+                content=f"{Icons.error} Please provide a valid Discord emoji.",
                 ephemeral=True
             )
 
@@ -105,7 +105,7 @@ class SetTypeEmojiModal(Modal, title="Set Custom Emoji"):
             )
 
             return await interaction.followup.send(
-                content="Failed to set the type emoji. If this issue persists, please contact our support.",
+                content=f"{Icons.error} Failed to set the type emoji. If this issue persists, please contact our support.",
                 ephemeral=True
             )
 
