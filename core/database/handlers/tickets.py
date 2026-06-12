@@ -18,6 +18,7 @@ class Ticket:
     created_at: int | None
     closed_by: int | None
     closed_at: int | None
+    renamed_at: int | None
 
 class TicketHandler:
     """Manage ticket data"""
@@ -134,6 +135,25 @@ class TicketHandler:
             (
                 closed_by,
                 int(time.time()),
+                self.ticket_id
+            )
+        )
+
+    @ensure_cursor
+    def set_renamed_at(
+        self,
+        timestamp: int,
+        *,
+        cursor: Cursor = None
+    ) -> None:
+        cursor.execute(
+            """
+            UPDATE tickets
+            SET renamed_at=%s
+            WHERE ticket_id=%s
+            """,
+            (
+                timestamp,
                 self.ticket_id
             )
         )

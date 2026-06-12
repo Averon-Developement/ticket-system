@@ -1,14 +1,10 @@
 from discord.ext import commands
-from discord import app_commands, Interaction
+from discord import app_commands, Interaction, Member
 
-from core.ui.components import SettingsMenu
-from core import Icons
-
-from core.database.handlers import (
-    GuildSettingsHandler,
-    TicketPanelHandler,
-    WelcomePanelHandler,
-    TicketTypeHandler
+from core.commands import (
+    run_ticket_setup,
+    run_ticket_rename,
+    run_ticket_add
 )
 
 
@@ -25,47 +21,30 @@ class Ticket(commands.Cog):
         name="setup",
         description="Configure the ticket system settings"
     )
-    async def setup(
-        self, interaction: Interaction
-    ):
+    @app_commands.checks.has_permissions(administrator=True)
+    async def setup(self, interaction: Interaction):
         await interaction.response.defer(ephemeral=True)
+        await run_ticket_setup(interaction)
 
-        if not interaction.user.guild_permissions.administrator:
-            return await interaction.edit_original_response(
-                content=f"{Icons.error} You do not have the permissions to execute this command."
-            )
 
-        guild_id: int = interaction.guild.id
-        settings = GuildSettingsHandler(guild_id).get_settings()
+    @ticket.command(
+        name="rename",
+        description="Rename the current ticket."
+    )
+    @app_commands.describe(name="The new ticket name.")
+    async def rename(self, interaction: Interaction, name: str):
+        await interaction.response.defer(ephemeral=True)
+        await run_ticket_rename(interaction, name)
 
-        ticket_panel = TicketPanelHandler.get_panel_by_guild(settings.guild_id)
-        ticket_type = TicketTypeHandler.get_total_types(settings.guild_id)
 
-        if not ticket_panel and ticket_type == 0:
-            panel_id = TicketPanelHandler.create_panel(settings.guild_id)
-            panel_handler = TicketPanelHandler(panel_id)
-            panel_handler.set_title("Support")
-            panel_handler.set_description("Click the button below to create a ticket.")
-
-            type_id = TicketTypeHandler.create_ticket_type(settings.guild_id)
-            type_handler = TicketTypeHandler(type_id)
-            type_handler.set_name("Support")
-            type_handler.set_button_name("Create ticket")
-            
-            welcome_panel_id = WelcomePanelHandler.create_panel(settings.guild_id, type_id)
-            welcome_handler = WelcomePanelHandler(welcome_panel_id)
-            welcome_handler.set_title("Welcome {user.mention}")
-            welcome_handler.set_description(
-                (
-                    "Thank you for contacting support.\n"
-                    "Please describe your issue in as much detail as possible below.\n\n"
-                    "A staff member will assist you as soon as possible."
-                )
-            )
-
-        await interaction.edit_original_response(
-            view=SettingsMenu(interaction.guild)
-        )
+    @ticket.command(
+        name="add",
+        description="Add a member to the ticket."
+    )
+    @app_commands.describe(member="The member you want to add.")
+    async def add(self, interaction: Interaction, member: Member):
+        await interaction.response.defer(ephemeral=True)
+        await run_ticket_add(interaction, member)
 
 
 async def setup(client: commands.Bot) -> None:
