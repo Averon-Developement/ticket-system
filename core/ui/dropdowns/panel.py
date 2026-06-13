@@ -1,8 +1,7 @@
 from discord.ui import ChannelSelect
-from discord import Interaction, ChannelType, TextChannel
+from discord import Interaction, ChannelType, Embed
 
-from core import Icons
-from core.database.handlers import GuildSettingsHandler
+from core import colors
 
 
 class SendTicketPanelToChannelSelect(ChannelSelect):
@@ -20,19 +19,21 @@ class SendTicketPanelToChannelSelect(ChannelSelect):
         selected = self.values[0]
 
         channel = interaction.guild.get_channel(selected.id)
-
-        if channel is None:
-            return await interaction.response.edit_message(
-                content=f"{Icons.error} Unable to find that channel.",
-                view=None
-            )
+        if not channel:
+            channel = await interaction.guild.fetch_channel(selected.id)
 
         permissions = channel.permissions_for(interaction.guild.me)
 
         if not permissions.send_messages:
             return await interaction.response.edit_message(
-                content=f"{Icons.error} I can't send messages in {channel.mention}.",
-                view=None
+                embed=Embed(
+                    description=(
+                        "I do not have permission to send messages in this channel.\n"
+                        "- Missing permissions: `Send Messages`"
+                    ),
+                    color=colors.red
+                ),
+                view=None, content=None
             )
 
         from core.ui.components import TicketPanel
@@ -46,6 +47,9 @@ class SendTicketPanelToChannelSelect(ChannelSelect):
         )
 
         await interaction.response.edit_message(
-            content=f"{Icons.success} Successfully sent the ticket panel to {channel.mention}.",
-            view=None
+            embed=Embed(
+                description=f"Ticket panel sent to {channel.mention}.",
+                color=colors.green
+            ),
+            view=None, content=None
         )

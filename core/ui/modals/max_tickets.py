@@ -1,7 +1,7 @@
 from discord import Interaction
 from discord.ui import Modal, TextInput
 
-from core import Icons
+from core import icons
 from core.database.handlers import GuildSettingsHandler
 
 
@@ -27,13 +27,13 @@ class SetMaxTicketsModal(Modal, title="Set max tickets"):
 
             if max_tickets < 1:
                 return await interaction.followup.send(
-                    content=f"{Icons.error} Max tickets must be 1 or greater.",
+                    content=f"{icons.error} Max tickets must be 1 or greater.",
                     ephemeral=True
                 )
             
         except ValueError:
             return await interaction.followup.send(
-                content=f"{Icons.error} Max tickets must be a valid number.",
+                content=f"{icons.error} Max tickets must be a valid number.",
                 ephemeral=True
             )   
             

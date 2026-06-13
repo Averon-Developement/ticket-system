@@ -3,7 +3,7 @@ import time
 from discord.ui import Button, View
 from discord import ButtonStyle, Interaction, PermissionOverwrite
 
-from core import Icons
+from core import icons as icons
 from core.database.handlers import (
     TicketTypeHandler,
     TicketHandler,
@@ -54,7 +54,7 @@ class CreateTicketButton(Button):
 
         if is_blacklisted:
             return await interaction.followup.send(
-                content=f"{Icons.error} You are not allowed to create a ticket.",
+                content=f"{icons.error} You are not allowed to create a ticket.",
                 ephemeral=True
             )
 
@@ -80,7 +80,7 @@ class CreateTicketButton(Button):
 
             return await interaction.followup.send(
                 content=(
-                    f"{Icons.error} You already have `{len(open_tickets)}`/`{guild_settings.max_tickets}` "
+                    f"{icons.error} You already have `{len(open_tickets)}`/`{guild_settings.max_tickets}` "
                     f"tickets open.\n"
                     f"-# Open Tickets: {', '.join(ticket_mentions)}"
                 ),
@@ -141,7 +141,7 @@ class CreateTicketButton(Button):
         await welcome_message.pin(reason="Ticket welcome message.")
 
         await msg.edit(
-            content=f"{Icons.success} Ticket created: {channel.mention}."
+            content=f"{icons.success} Ticket created: {channel.mention}."
         )
 
 
@@ -166,7 +166,7 @@ class TicketCloseButton(Button):
 
         if not interaction.user.guild_permissions.manage_messages:
             return await interaction.followup.send(
-                content=f"{Icons.error} You do not have the permissions to close this ticket.",
+                content=f"{icons.error} You do not have the permissions to close this ticket.",
                 ephemeral=True
             )
 
@@ -203,7 +203,7 @@ class TicketClaimButton(Button):
 
         if not interaction.user.guild_permissions.manage_messages:
             return await interaction.followup.send(
-                content=f"{Icons.error} You do not have the permissions to claim this ticket.",
+                content=f"{icons.error} You do not have the permissions to claim this ticket.",
                 ephemeral=True
             )
 
@@ -225,7 +225,7 @@ class TicketClaimButton(Button):
             )
 
             await interaction.followup.send(
-                content=f"{Icons.success} You have claimed this ticket.",
+                content=f"{icons.success} You have claimed this ticket.",
                 ephemeral=True
             )
             return
@@ -243,7 +243,7 @@ class TicketClaimButton(Button):
             )
 
             await interaction.followup.send(
-                content=f"{Icons.success} You have unclaimed this ticket.",
+                content=f"{icons.success} You have unclaimed this ticket.",
                 ephemeral=True
             )
             return
@@ -254,7 +254,7 @@ class TicketClaimButton(Button):
                 user = await interaction.guild.fetch_member(ticket_info.claimed_by)
 
             await interaction.followup.send(
-                content=f"{Icons.error} this ticket has already been claimed by **{user.name}**.",
+                content=f"{icons.error} this ticket has already been claimed by **{user.name}**.",
                 ephemeral=True
             )
             return

@@ -1,6 +1,6 @@
 from discord import Interaction, app_commands
 
-from core import logger, Icons
+from core import logger, colors
 
 
 async def handle_command_error(
@@ -12,17 +12,24 @@ async def handle_command_error(
         exc_info=error
     )
 
-    message = (
-        f"{Icons.error} Something went wrong while processing your request. \n"
-        "-# If the issue persists, please contact our support server."
+    from core.ui.components import CustomMessageComponent
+
+    content = (
+        f"Something went wrong while processing your request. "
+        "If the issue persists, please contact our support server."
+    )
+
+    view = CustomMessageComponent(
+        content=content,
+        accent_color=colors.red
     )
 
     try:
-        await interaction.edit_original_response(content=message)
+        await interaction.edit_original_response(view=view)
 
     except Exception:
         await interaction.followup.send(
-            content=message,
+            view=view,
             ephemeral=True
         )
 
@@ -31,9 +38,14 @@ async def handle_app_command_error(
     error: app_commands.AppCommandError
 ) -> None:
 
+    from core.ui.components import CustomMessageComponent
+
     if isinstance(error, app_commands.MissingPermissions):
         await interaction.response.send_message(
-            f"{Icons.error} You do not have permission to use this command.",
+            view=CustomMessageComponent(
+                content="You do not have permission to execute this command.",
+                accent_color=colors.red
+            ),
             ephemeral=True
         )
         return

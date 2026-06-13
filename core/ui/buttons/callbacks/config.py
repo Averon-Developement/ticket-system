@@ -1,12 +1,8 @@
 from discord import ButtonStyle
 
 from core.ui.buttons import AppButton
-from core.ui.modals import (
-    SetAccentColorModal,
-    SetTitleModal,
-    SetDescriptionModal,
-    SetThumbnailModal
-)
+from core.ui.modals import SetAccentColorModal
+
 
 from ..helpers import create_modal_button
 

@@ -1,12 +1,13 @@
-from discord import Interaction, Member, Forbidden
+import asyncio
+
+from discord import Interaction, Forbidden
 
 from core import colors
 from core.database.handlers import TicketHandler
 
 
-async def run_ticket_add(
-    interaction: Interaction,
-    member: Member
+async def run_ticket_close(
+    interaction: Interaction
 ) -> None:
 
     from core.ui.components import CustomMessageComponent
@@ -16,17 +17,18 @@ async def run_ticket_add(
     if channel is None:
         return await interaction.response.send_message(
             view=CustomMessageComponent(
-                content=f"Unable to determine the current channel.",
+                content="Unable to determine the current channel.",
                 accent_color=colors.red
             ),
             ephemeral=True
         )
 
     ticket = TicketHandler.get_by_channel(channel.id)
+
     if not ticket:
         return await interaction.response.send_message(
             view=CustomMessageComponent(
-                content=f"This is not a ticket channel. Please use this command inside a ticket channel.",
+                content="This is not a ticket channel. Please use this command inside a ticket channel.",
                 accent_color=colors.red
             ),
             ephemeral=True
@@ -38,7 +40,7 @@ async def run_ticket_add(
         return await interaction.response.send_message(
             view=CustomMessageComponent(
                 content=(
-                    "I do not have permission to manage this channel.\n"
+                    "I do not have permission to delete this channel.\n"
                     "- Missing permissions: `Manage Channels`"
                 ),
                 accent_color=colors.red
@@ -46,39 +48,33 @@ async def run_ticket_add(
             ephemeral=True
         )
 
-    if channel.permissions_for(member).view_channel:
-        return await interaction.response.send_message(
+    handler = TicketHandler(ticket.ticket_id)
+
+    try:
+        handler.set_status(1)
+        handler.close_ticket(interaction.user.id)
+
+        await interaction.response.send_message(
             view=CustomMessageComponent(
-                content=f"{member.mention} already has access to this ticket.",
+                content=(
+                    f"This ticket has been closed by "
+                    f"**{interaction.user.mention}** and will be deleted in **5 seconds**."
+                ),
+                accent_color=0xFE3641
+            )
+        )
+
+        await asyncio.sleep(5)
+        await channel.delete()
+
+    except Forbidden:
+        return await interaction.followup.send(
+            view=CustomMessageComponent(
+                content=(
+                    "I could not delete this ticket.\n"
+                    "- Check my role hierarchy and channel permissions."
+                ),
                 accent_color=colors.red
             ),
             ephemeral=True
         )
-
-    try:
-        await channel.set_permissions(
-            member,
-            view_channel=True,
-            send_messages=True,
-            read_message_history=True,
-            attach_files=True,
-            embed_links=True
-        )
-
-    except Forbidden:
-        return await interaction.response.send_message(
-            view=CustomMessageComponent(
-                content=(
-                    f"I could not add {member.mention} to this ticket.\n"
-                    "- Check my role hierarchy and channel permissions."
-                ),
-                accent_color=colors.red
-            )
-        )
-
-    await interaction.response.send_message(
-        view=CustomMessageComponent(
-            content=f"{member.mention} has been added to this ticket.",
-            accent_color=colors.green
-        )
-    )

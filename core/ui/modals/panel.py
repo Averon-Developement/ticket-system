@@ -3,7 +3,7 @@ from urllib.parse import urlparse
 from discord import Interaction, TextStyle
 from discord.ui import Modal, TextInput
 
-from core import Icons
+from core import icons
 from core.database.handlers import WelcomePanelHandler, TicketPanelHandler
 
 
@@ -71,7 +71,7 @@ class SetAccentColorModal(BasePanelModal, title="Set Accent Color"):
 
         except ValueError:
             return await interaction.followup.send(
-                content=f"{Icons.error} Please provide a valid hex color (e.g. #5865F2).",
+                content=f"{icons.error} Please provide a valid hex color (e.g. #5865F2).",
                 ephemeral=True
             )
 
@@ -144,7 +144,7 @@ class SetThumbnailModal(BasePanelModal, title="Set Thumbnail"):
             if parsed.scheme not in {"http", "https"} or not parsed.netloc:
                 return await interaction.followup.send(
                     content=(
-                        f"{Icons.error} Please provide a valid image URL or "
+                        f"{icons.error} Please provide a valid image URL or "
                         "`{user.avatar}`."
                     ),
                     ephemeral=True

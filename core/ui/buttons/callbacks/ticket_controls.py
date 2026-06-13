@@ -4,7 +4,7 @@ from discord import Interaction
 from core.database.handlers import TicketHandler
 from core.ui.buttons import AppButton
 
-from core import Icons
+from core import icons
 
 
 async def close_ticket_canceled(
@@ -13,7 +13,7 @@ async def close_ticket_canceled(
 ) -> None:
     
     await interaction.response.edit_message(
-        content=f"{Icons.error} Ticket close canceled.",
+        content=f"{icons.error} Ticket close canceled.",
         view=None,
         delete_after=5
     )
@@ -31,7 +31,7 @@ async def close_ticket_confirmed(
     handler.close_ticket(interaction.user.id)
 
     await interaction.response.edit_message(
-        content=f"{Icons.success} You have successfully closed the ticket.",
+        content=f"{icons.success} You have successfully closed the ticket.",
         view=None
     )
 

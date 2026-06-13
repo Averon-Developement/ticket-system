@@ -1,16 +1,12 @@
-import time
-
-from discord import Interaction
+from discord import Interaction, Member, Forbidden
 
 from core import colors
 from core.database.handlers import TicketHandler
 
-RENAME_COOLDOWN: int = 300
 
-
-async def run_ticket_rename(
+async def run_ticket_remove(
     interaction: Interaction,
-    name: str
+    member: Member
 ) -> None:
 
     from core.ui.components import CustomMessageComponent
@@ -20,7 +16,7 @@ async def run_ticket_rename(
     if channel is None:
         return await interaction.response.send_message(
             view=CustomMessageComponent(
-                content=f"Unable to determine the current channel.",
+                content="Unable to determine the current channel.",
                 accent_color=colors.red
             ),
             ephemeral=True
@@ -30,43 +26,14 @@ async def run_ticket_rename(
     if not ticket:
         return await interaction.response.send_message(
             view=CustomMessageComponent(
-                content=f"This is not a ticket channel. Please use this command inside a ticket channel.",
+                content="This is not a ticket channel. Please use this command inside a ticket channel.",
                 accent_color=colors.red
             ),
             ephemeral=True
         )
-    
-    new_name = name.strip().lower()
-
-    if channel.name == new_name:
-        return await interaction.response.send_message(
-            view=CustomMessageComponent(
-                content="Ticket already has that name.",
-                accent_color=colors.red
-            ),
-            ephemeral=True
-        )
-    
-    if (
-        ticket.renamed_at is not None
-        and int(time.time()) - ticket.renamed_at < RENAME_COOLDOWN
-    ):
-        remaining = int(
-            RENAME_COOLDOWN - (time.time() - ticket.renamed_at)
-        ) 
-
-        minutes = remaining // 60
-        seconds = remaining % 60
-
-        return await interaction.response.send_message(
-            view=CustomMessageComponent(
-                content=f"This ticket was renamed recently. Please wait **{minutes}m {seconds}s** before renaming it again.",
-                accent_color=colors.red
-            ),
-            ephemeral=True
-        ) 
 
     me = interaction.guild.me
+
     if not channel.permissions_for(me).manage_channels:
         return await interaction.response.send_message(
             view=CustomMessageComponent(
@@ -79,14 +46,32 @@ async def run_ticket_rename(
             ephemeral=True
         )
 
-    await channel.edit(name=new_name)
+    if not channel.permissions_for(member).view_channel:
+        return await interaction.response.send_message(
+            view=CustomMessageComponent(
+                content=f"{member.mention} does not have access to this ticket.",
+                accent_color=colors.red
+            ),
+            ephemeral=True
+        )
 
-    TicketHandler(ticket.ticket_id).set_renamed_at(int(time.time()))
+    try:
+        await channel.set_permissions(member, overwrite=None)
+
+    except Forbidden:
+        return await interaction.response.send_message(
+            view=CustomMessageComponent(
+                content=(
+                    f"I could not remove {member.mention} from this ticket.\n"
+                    "- Check my role hierarchy and channel permissions."
+                ),
+                accent_color=colors.red
+            )
+        )
 
     await interaction.response.send_message(
         view=CustomMessageComponent(
-            content=f"Ticket has been renamed to {interaction.channel.mention}.",
+            content=f"{member.mention} has been removed from this ticket.",
             accent_color=colors.green
         )
     )
-    

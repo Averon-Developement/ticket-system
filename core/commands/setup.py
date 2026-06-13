@@ -1,6 +1,5 @@
 from discord import Interaction, Guild
 
-from core import Icons
 from core.ui.components import SettingsMenu
 from core.database.handlers import (
     GuildSettingsHandler,
@@ -28,7 +27,8 @@ async def create_default_ticket_setup(guild_id: int) -> None:
         "Thank you for contacting support.\n"
         "Please describe your issue in as much detail as possible below.\n\n"
         "A staff member will assist you as soon as possible."
-    )    
+    )
+    welcome.set_thumbnail_url("{user.avatar}")
 
 
 async def run_ticket_setup(interaction: Interaction) -> None:
